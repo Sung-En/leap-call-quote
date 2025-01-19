@@ -56,18 +56,19 @@ def plot_leverage_ratios(strikes, leverage_ratios, adjusted_ratios, premiums, sh
     if show_adjusted:
         ax1.plot(strikes, adjusted_ratios, label="Adjusted Leverage Ratio", marker="x")
 
-    ax1.set_xlabel("Strike Price")
-    ax1.set_ylabel("Leverage Ratio")
-    ax1.set_title("Leverage Ratios vs. Strike Prices")
-    ax1.grid(True)
-    ax1.legend()
-
+    ax1.set_xlabel("Strike Price", fontsize=26)
+    ax1.set_ylabel("Leverage Ratio", fontsize=26)
+    ax1.set_title("Leverage Ratios vs. Strike Prices", fontsize=28)
+    ax1.grid(True, linestyle="--", alpha=0.5)
+    ax1.legend(fontsize=20)
+    ax1.tick_params(axis="both", which="major", labelsize=20)  # Axis tick labels larger
     # Secondary x-axis for break-even prices
     ax2 = ax1.twiny()
     ax2.set_xlim(ax1.get_xlim())  # Align the x-axes
     ax2.set_xticks(strikes)
     ax2.set_xticklabels([f"{price:.1f}" for price in break_even_prices], rotation=45)  # Adjusted to 1 decimal place
     ax2.set_xlabel("Break-Even Price")
+    ax2.tick_params(axis="both", which="major", labelsize=20)  # Axis tick labels larger
 
     plt.tight_layout()
     st.pyplot(fig)
