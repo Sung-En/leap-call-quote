@@ -103,7 +103,7 @@ def main():
     min_range, max_range = strike_range
 
     # Plot options
-    show_adjusted = st.checkbox("Show Adjusted Leverage Ratio", value=False)
+    show_adjusted = st.checkbox("Show Adjusted Leverage Ratio", value=True)
 
     # Fetch option data
     calls, _ = fetch_option_data(symbol, expiration)
