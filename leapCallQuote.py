@@ -5,12 +5,17 @@ import streamlit as st
 from datetime import datetime, timedelta
 
 
-def get_default_expiration():
+def get_expiration_dates(symbol):
+    """Fetches available expiration dates for the given symbol."""
+    stock = yf.Ticker(symbol)
+    expirations = stock.options
+    return expirations
+
+
+def get_default_expiration(expirations):
     """Get the default option expiration date (closest to one year from today)."""
     today = datetime.today()
     one_year_later = today + timedelta(days=365)
-    stock = yf.Ticker("AAPL")  # Replace with any symbol to access expiration dates
-    expirations = stock.options
     default_expiration = min(expirations, key=lambda x: abs(datetime.strptime(x, '%Y-%m-%d') - one_year_later))
     return default_expiration
 
@@ -74,6 +79,13 @@ def main():
     # Stock symbol input
     symbol = st.text_input("Stock Symbol", "AAPL").upper()
 
+    # Fetch available expiration dates
+    expirations = get_expiration_dates(symbol)
+    default_expiration = get_default_expiration(expirations)
+
+    # User input for expiration date selection
+    expiration = st.selectbox("Select Expiration Date", expirations, index=expirations.index(default_expiration))
+
     # User inputs for target price
     stock_price = yf.Ticker(symbol).info['currentPrice']
 
@@ -85,16 +97,12 @@ def main():
     st.write(f"Current Price: ${stock_price:.2f}")
     st.write(f"Target Price (after {target_percentage}% increase): ${target_price:.2f}")
 
-    # Strike price range input
-    min_range = st.slider("Strike Price Range (%)", -100, 0, -50)
-    max_range = st.slider("to", -100, 0, -10)
-    strike_range = (min_range, max_range)
+    # Strike price range input (single slider)
+    strike_range = st.slider("Strike Price Range (%)", -100, 20, (-50, -10), step=1)
+    min_range, max_range = strike_range
 
     # Plot options
     show_adjusted = st.checkbox("Show Adjusted Leverage Ratio", value=False)
-
-    # Expiration date
-    expiration = get_default_expiration()
 
     # Fetch option data
     calls, _ = fetch_option_data(symbol, expiration)
