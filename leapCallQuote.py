@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
 from datetime import datetime, timedelta
-
+import re
 
 def get_expiration_dates(symbol):
     """Fetches available expiration dates for the given symbol."""
@@ -79,6 +79,7 @@ def main():
 
     # Stock symbol input
     symbol = st.text_input("Stock Symbol", "AAPL").upper()
+    symbol = "".join(re.findall(r'[A-Za-z]+', symbol)).upper()
 
     # Fetch available expiration dates
     expirations = get_expiration_dates(symbol)
