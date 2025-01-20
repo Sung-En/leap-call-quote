@@ -1,10 +1,15 @@
 import yfinance as yf
 import numpy as np
 import matplotlib.pyplot as plt
-import streamlit as st
 from datetime import datetime, timedelta
 
+# Input values (for debugging and local running)
+symbol = "CAT"  # Stock Symbol
+target_percentage = 20  # Target price increase in percentage
+strike_range = (-50, -10)  # Strike price range in percentage (-50% to -10%)
+show_adjusted = True  # Whether to show adjusted leverage ratio
 
+# Functions
 def get_expiration_dates(symbol):
     """Fetches available expiration dates for the given symbol."""
     stock = yf.Ticker(symbol)
@@ -71,41 +76,19 @@ def plot_leverage_ratios(strikes, leverage_ratios, adjusted_ratios, premiums, sh
     ax2.tick_params(axis="both", which="major", labelsize=20)  # Axis tick labels larger
 
     plt.tight_layout()
-    st.pyplot(fig)
+    plt.show()
 
 
 def main():
-    st.title("Option Leverage Plotter")
-
-    # Stock symbol input
-    symbol = st.text_input("Stock Symbol", "AAPL").upper()
-
     # Fetch available expiration dates
     expirations = get_expiration_dates(symbol)
     default_expiration = get_default_expiration(expirations)
 
-    # User input for expiration date selection
-    expiration = st.selectbox("Select Expiration Date", expirations, index=expirations.index(default_expiration))
-
-    # User inputs for target price
-    stock_price = yf.Ticker(symbol).info['currentPrice']
-
-    # Target price input using percentage and fixed value
-    target_percentage = st.slider("Target Price Increase (%)", -100, 100, 20)
-    target_price = stock_price * (1 + target_percentage / 100)
-
-    # Display current and target prices
-    st.write(f"Current Price: ${stock_price:.2f}")
-    st.write(f"Target Price (after {target_percentage}% increase): ${target_price:.2f}")
-
-    # Strike price range input (single slider)
-    strike_range = st.slider("Strike Price Range (%)", -100, 20, (-50, -10), step=1)
-    min_range, max_range = strike_range
-
-    # Plot options
-    show_adjusted = st.checkbox("Show Adjusted Leverage Ratio", value=True)
+    # Select expiration date (use the default one)
+    expiration = default_expiration
 
     # Fetch option data
+    stock_price = yf.Ticker(symbol).info['currentPrice']
     calls, _ = fetch_option_data(symbol, expiration)
 
     strikes, leverage_ratios, adjusted_ratios, premiums = calculate_leverage_ratios(
@@ -113,6 +96,7 @@ def main():
     )
 
     # Filter strike prices based on selected range
+    min_range, max_range = strike_range
     min_strike = stock_price * (1 + min_range / 100)
     max_strike = stock_price * (1 + max_range / 100)
 
